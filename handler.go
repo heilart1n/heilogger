@@ -60,14 +60,26 @@ func HandlerText(cfg *Config) slog.Handler {
 }
 
 func withRotation(cfg *Config) io.Writer {
-	if !cfg.EnableFileOutput || cfg.Rotation == nil {
-		return os.Stdout
+	// Проверяем, создана ли директория, если нет - создаем
+	if _, err := os.Stat(cfg.Rotation.OutputDirectory); os.IsNotExist(err) {
+		if err := os.MkdirAll(cfg.Rotation.OutputDirectory, 0755); err != nil {
+			log.Fatalf("Error creating log directory: %s", err)
+		}
 	}
 
 	// Если RotateDaily выключен, пишем все в один файл
 	if !cfg.Rotation.RotateDaily {
 		// Создаем путь для логов
 		path := cfg.Rotation.OutputDirectory + "/" + cfg.Rotation.FileName
+
+		// Проверяем, существует ли файл, если нет - создаем
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			file, err := os.Create(path)
+			if err != nil {
+				log.Fatalf("Error creating log file: %s", err)
+			}
+			_ = file.Close() // Закрываем файл, чтобы потом открыть его для записи
+		}
 
 		// Открываем файл для записи (с возможностью добавления данных)
 		file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

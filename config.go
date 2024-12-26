@@ -12,10 +12,6 @@ type (
 		OutputFormat LogFormatType `json:"output_format" yaml:"output_format"`
 		// EnableFileOutput If true, logs will be saved to a file.
 		EnableFileOutput bool `json:"enable_file_output" yaml:"enable_file_output"`
-		// OutputDirectory Path to the dict where logs are stored if file output is enabled.
-		OutputDirectory string `json:"output_directory" yaml:"output_directory"`
-		// OutputFileName File Name
-		OutputFileName string `json:"output_file_name" yaml:"output_file_name"`
 		// OutputLevel The minimum log level that will be output (e.g., info, debug).
 		OutputLevel LogLevel `json:"output_level" yaml:"output_level"`
 		// WithSource If true, includes the source file and line number in logs.
@@ -65,8 +61,6 @@ func DefaultConfig() *Config {
 	return &Config{
 		OutputFormat:     DefaultLogFormat,
 		EnableFileOutput: DefaultEnableFileOutput,
-		OutputDirectory:  DefaultOutputDirectory,
-		OutputFileName:   DefaultFileName,
 		OutputLevel:      DefaultLogLevel,
 		WithSource:       DefaultWithSource,
 		OutputToConsole:  DefaultOutputToConsole,
@@ -76,10 +70,11 @@ func DefaultConfig() *Config {
 
 func DefaultRotation() *ConfigRotation {
 	return &ConfigRotation{
-		RotateDaily:  DefaultRotateDaily,
-		MaxAge:       DefaultMaxAge,
-		FileName:     DefaultFileName,
-		RotationTime: DefaultRotationTime,
+		RotateDaily:     DefaultRotateDaily,
+		MaxAge:          DefaultMaxAge,
+		FileName:        DefaultFileName,
+		RotationTime:    DefaultRotationTime,
+		OutputDirectory: DefaultOutputDirectory,
 	}
 }
 
@@ -102,15 +97,6 @@ func (cfg *Config) Validate() {
 		cfg.OutputLevel = DefaultLogLevel
 	}
 
-	// Set default file output path if not provided
-	if cfg.OutputDirectory == "" {
-		cfg.OutputDirectory = DefaultOutputDirectory
-	}
-
-	if cfg.OutputFileName == "" {
-		cfg.OutputFileName = DefaultFileName
-	}
-
 	if cfg.Rotation == nil {
 		cfg.Rotation = DefaultRotation()
 	}
@@ -121,15 +107,6 @@ func (cfg *Config) SetOutputFormat(logFormat LogFormatType) *Config {
 	return cfg
 }
 
-func (cfg *Config) SetOutputDirectory(logDirectory string) *Config {
-	cfg.OutputDirectory = logDirectory
-	return cfg
-}
-
-func (cfg *Config) SetOutputFileName(logFileName string) *Config {
-	cfg.OutputFileName = logFileName
-	return cfg
-}
 func (cfg *Config) SetOutputLevel(logLevel LogLevel) *Config {
 	cfg.OutputLevel = logLevel
 	return cfg

@@ -29,6 +29,11 @@ func (cfg *Config) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	// Ensure cfg.Rotation is not nil
+	if cfg.Rotation == nil {
+		cfg.Rotation = &ConfigRotation{}
+	}
+
 	// Parse time.Duration fields from string
 	if aux.Rotation.MaxAge != "" {
 		maxAge, err := time.ParseDuration(aux.Rotation.MaxAge)

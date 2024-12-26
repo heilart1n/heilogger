@@ -60,6 +60,11 @@ func HandlerText(cfg *Config) slog.Handler {
 }
 
 func withRotation(cfg *Config) io.Writer {
+	// Проверяем, указан ли путь к директории
+	if cfg.Rotation.OutputDirectory == "" {
+		log.Fatalf("Output directory is not specified")
+	}
+
 	// Проверяем, создана ли директория, если нет - создаем
 	if _, err := os.Stat(cfg.Rotation.OutputDirectory); os.IsNotExist(err) {
 		if err := os.MkdirAll(cfg.Rotation.OutputDirectory, 0755); err != nil {

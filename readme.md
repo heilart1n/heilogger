@@ -55,7 +55,7 @@ Here are examples of the configuration in both JSON and YAML formats:
   }
 }
 ```
-### YAML Confirmation
+#### YAML Confirmation
 
 ```yaml
 output_format: text

@@ -2,7 +2,7 @@ package heiloger
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 )
@@ -16,8 +16,11 @@ func (cfg *Config) UnmarshalJSON(data []byte) error {
 	type Alias Config // Use an alias to avoid infinite recursion
 	aux := &struct {
 		Rotation struct {
-			MaxAge       string `json:"max_age"`
-			RotationTime string `json:"rotation_time"`
+			MaxAge          string `json:"max_age"`
+			RotationTime    string `json:"rotation_time"`
+			OutputDirectory string `json:"output_directory"`
+			FileName        string `json:"file_name"`
+			RotateDaily     bool   `json:"rotate_daily"`
 		} `json:"rotation"`
 		*Alias
 	}{
@@ -38,17 +41,22 @@ func (cfg *Config) UnmarshalJSON(data []byte) error {
 	if aux.Rotation.MaxAge != "" {
 		maxAge, err := time.ParseDuration(aux.Rotation.MaxAge)
 		if err != nil {
-			return errors.New("invalid max_age duration format")
+			return fmt.Errorf("invalid max_age duration format: %w", err)
 		}
 		cfg.Rotation.MaxAge = maxAge
 	}
 	if aux.Rotation.RotationTime != "" {
 		rotationTime, err := time.ParseDuration(aux.Rotation.RotationTime)
 		if err != nil {
-			return errors.New("invalid rotation_time duration format")
+			return fmt.Errorf("invalid rotation_time duration format: %w", err)
 		}
 		cfg.Rotation.RotationTime = rotationTime
 	}
+
+	// Set other fields in Rotation
+	cfg.Rotation.OutputDirectory = aux.Rotation.OutputDirectory
+	cfg.Rotation.FileName = aux.Rotation.FileName
+	cfg.Rotation.RotateDaily = aux.Rotation.RotateDaily
 
 	return nil
 }
